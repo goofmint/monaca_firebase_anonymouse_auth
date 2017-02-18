@@ -1,4 +1,4 @@
-ons.ready(function() {
+var onDeviceReady = function() {
   // Firebaseの初期化
   var config = {
     apiKey: "API_KEY",
@@ -26,52 +26,53 @@ ons.ready(function() {
 	  	// ユーザのステータスが変わったら通知
 	  	var me = this;
 	  	firebase.auth().onAuthStateChanged(function(user) {
-	  		if (user)
+	  		if (user) {
 		  		me.user.isAnonymous = user.isAnonymous;
+		  		me.user.mailAddress = user.email;
+	  		}
 	  		me.user.isLoggedIn = (user !== null);
 	  	});
 	  },
 	  
 	  // テンプレート
 	  template: `
-	  <v-ons-page>
-	    <v-ons-toolbar>
-	      <div class="center"> Firebase認証 </div>
-	    </v-ons-toolbar>
+	  <div>
+      <div class="center"> Firebase認証 </div>
 	    <section style="margin: 10px;" v-if="user.isLoggedIn">
-	    	<p>{{ user.isAnonymous ? "匿名ユーザ" : user.mailAddress}}</p>
+	    	<p v-if="user.isAnonymous">匿名ユーザ</p>
+	    	<p v-else>{{user.mailAddress}}</p>
 	    	<section style="margin: 10px;" v-if="user.isAnonymous">
 	    		<div class="center">ユーザ化する</div>
 		      <p>メールアドレス</p>
 		      <p>
-		        <v-ons-input v-ons-model="user.mailAddress" placeholder="メールアドレス"></v-ons-input>
+		        <input v-model="user.mailAddress" placeholder="メールアドレス" />
 		      </p>
 		      <p>パスワード</p>
 		      <p>
-		        <v-ons-input v-ons-model="user.password" placeholder="パスワード" type="password"></v-ons-input>
+		        <input v-model="user.password" placeholder="パスワード" type="password" />
 		      </p>
 			    <section style="margin: 10px;">
-			      <ons-button @click="anony_register">ユーザ登録</ons-button>
+			      <button @click="anony_register">ユーザ登録</button>
 			    </section>
 	    	</section>
 		    <section style="margin: 10px;">
-		      <ons-button @click="logout">ログアウト</ons-button>
+		      <button @click="logout">ログアウト</button>
 		    </section>
 	    </section>
 			<section v-else style="margin: 10px;">
 	      <p>メールアドレス</p>
 	      <p>
-	        <v-ons-input v-ons-model="user.mailAddress" placeholder="メールアドレス"></v-ons-input>
+	        <input v-model="user.mailAddress" placeholder="メールアドレス" />
 	      </p>
 	      <p>パスワード</p>
 	      <p>
-	        <v-ons-input v-ons-model="user.password" placeholder="パスワード" type="password"></v-ons-input>
+	        <input v-model="user.password" placeholder="パスワード" type="password" />
 	      </p>
-	      <ons-button @click="register">新規登録</ons-button>
-	      <ons-button @click="login">ログイン</ons-button>
-	      <ons-button @click="anonymouse">匿名ユーザ</ons-button>
+	      <button @click="register">新規登録</button>
+	      <button @click="login">ログイン</button>
+	      <button @click="anonymouse">匿名ユーザ</button>
 	    </section>
-	  </v-ons-page>`,
+	  </div>`,
 	  // イベント処理
 	  methods: {
 	  	// 登録処理
@@ -108,6 +109,7 @@ ons.ready(function() {
 	  		firebase.auth().currentUser.link(credential)
 	  			.then(function(user) {
 	  				// ステータス通知が行われないので注意
+	  				me.user.mailAddress = user.email;
 						me.user.isAnonymous = false;
 						me.user.isLoggedIn = true;
 					}, function(error) {
@@ -116,4 +118,5 @@ ons.ready(function() {
 	  	}
 	  }
 	});
-});
+};
+document.addEventListener(window.cordova ?"deviceready" : "DOMContentLoaded", onDeviceReady, false);
